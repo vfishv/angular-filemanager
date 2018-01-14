@@ -1,4 +1,4 @@
-(function(angular, $) {
+(function(angular) {
     'use strict';
     angular.module('FileManagerApp').controller('FileManagerCtrl', [
         '$scope', '$rootScope', '$window', '$translate', 'fileManagerConfig', 'item', 'fileNavigator', 'apiMiddleware',
@@ -7,7 +7,7 @@
         var $storage = $window.localStorage;
         $scope.config = fileManagerConfig;
         $scope.reverse = false;
-        $scope.predicate = ['model.type', 'model.name'];        
+        $scope.predicate = ['model.type', 'model.name'];
         $scope.order = function(predicate) {
             $scope.reverse = ($scope.predicate[1] === predicate) ? !$scope.reverse : false;
             $scope.predicate[1] = predicate;
@@ -134,10 +134,10 @@
             if (item.isImage()) {
                 if ($scope.config.previewImagesInModal) {
                     return $scope.openImagePreview(item);
-                } 
+                }
                 return $scope.apiMiddleware.download(item, true);
             }
-            
+
             if (item.isEditable()) {
                 return $scope.openEditItem(item);
             }
@@ -148,7 +148,7 @@
             $scope.apiMiddleware.apiHandler.inprocess = true;
             $scope.modal('imagepreview', null, true)
                 .find('#imagepreview-target')
-                .attr('src', $scope.apiMiddleware.getUrl(item))
+                .attr('src', $scope.getUrl(item))
                 .unbind('load error')
                 .on('load error', function() {
                     $scope.apiMiddleware.apiHandler.inprocess = false;
@@ -165,7 +165,7 @@
         };
 
         $scope.modal = function(id, hide, returnElement) {
-            var element = $('#' + id);
+            var element = angular.element('#' + id);
             element.modal(hide ? 'hide' : 'show');
             $scope.apiMiddleware.apiHandler.error = '';
             $scope.apiMiddleware.apiHandler.asyncSuccess = false;
@@ -282,7 +282,7 @@
             });
         };
 
-        $scope.move = function() {           
+        $scope.move = function() {
             var anyItem = $scope.singleSelection() || $scope.temps[0];
             if (anyItem && validateSamePath(anyItem)) {
                 $scope.apiMiddleware.apiHandler.error = $translate.instant('error_cannot_move_same_path');
@@ -340,6 +340,10 @@
             });
         };
 
+        $scope.getUrl = function(_item) {
+            return $scope.apiMiddleware.getUrl(_item);
+        };
+
         var validateSamePath = function(item) {
             var selectedPath = $rootScope.selectedModalPath.join('');
             var selectedItemsPath = item && item.model.path.join('');
@@ -358,4 +362,4 @@
         $scope.fileNavigator.refresh();
 
     }]);
-})(angular, jQuery);
+})(angular);
